@@ -8,10 +8,11 @@ import requests
 from urllib.parse import urljoin
 from faker import Faker
 import responses
+from django.conf import settings
 
 fake = Faker()
 
-base_actionnetwork_API_URL = "https://actionnetwork.org/api/v2"
+base_actionnetwork_API_URL = "https://actionnetwork.org/api/v1"
 
 @responses.activate
 def initiate_mock_actionnetwork(faker):
@@ -28,10 +29,13 @@ def call_mock_api(URI, params=None):
     ).json()
 
 class MockServerRequestHandler(BaseHTTPRequestHandler):	
-	USERS_PATTERN = re.compile(r'/users')
+	CAMPAIGNS_PATTERN = re.compile(r'/campaigns')
+	EVENTS_PATTERN = re.compile(r'/events')
+	PEOPLE_PATTERN = re.compile(r'/people')
 
 	def do_GET(self):
-		if re.search(self.USERS_PATTERN, self.path):
+    	# GET /people
+		if re.search(self.PEOPLE_PATTERN, self.path):
 			# Add response status code
 			self.send_response(requests.code.ok)
 
@@ -43,8 +47,15 @@ class MockServerRequestHandler(BaseHTTPRequestHandler):
 			response_content = json.dumps([])
 			self.wfile.write(response_content.encode('utf-8'))
 			return
-		elif re.search(self.EVENTS_PATTER, self.path):
+		# GET /events
+		elif re.search(self.EVENTS_PATTERN, self.path):
 			# Response status code
+			# TODO
+			return
+
+	def do_POST(self):
+		#TODO
+		return
 
 def get_free_port():
 	s = socket.socket(socket.AF_INET, type=socket.SOCK_STREAM)
